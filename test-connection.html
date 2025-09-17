@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Database Connection Test</title>
+</head>
+<body>
+    <h1>ISSO Database Connection Test</h1>
+    <div id="status">Testing connection...</div>
+    <div id="sports"></div>
+    <div id="teams"></div>
+    <div id="matches"></div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js@2';
+        
+        const supabaseUrl = 'https://rapomzbwiyqgxtzilclz.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJhcG9temJ3aXlxZ3h0emlsY2x6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwMDE4NDAsImV4cCI6MjA3MzU3Nzg0MH0.CKyQPN6rtNrtbAfowF8_GEKD-m_RyYSrTGJzs6wauhw';
+        
+        const supabase = createClient(supabaseUrl, supabaseKey);
+        
+        async function testConnection() {
+            try {
+                // Test 1: Check sports table
+                const { data: sports, error: sportsError } = await supabase
+                    .from('sports')
+                    .select('*');
+                
+                if (sportsError) {
+                    document.getElementById('status').innerHTML = `❌ Sports Error: ${sportsError.message}`;
+                    return;
+                }
+                
+                document.getElementById('sports').innerHTML = `✅ Sports: ${sports?.length || 0} found`;
+                
+                // Test 2: Check teams table
+                const { data: teams, error: teamsError } = await supabase
+                    .from('teams')
+                    .select('*');
+                
+                if (teamsError) {
+                    document.getElementById('status').innerHTML = `❌ Teams Error: ${teamsError.message}`;
+                    return;
+                }
+                
+                document.getElementById('teams').innerHTML = `✅ Teams: ${teams?.length || 0} found`;
+                
+                // Test 3: Check matches table
+                const { data: matches, error: matchesError } = await supabase
+                    .from('matches')
+                    .select('*');
+                
+                if (matchesError) {
+                    document.getElementById('status').innerHTML = `❌ Matches Error: ${matchesError.message}`;
+                    return;
+                }
+                
+                document.getElementById('matches').innerHTML = `✅ Matches: ${matches?.length || 0} found`;
+                
+                if (sports?.length === 0) {
+                    document.getElementById('status').innerHTML = `⚠️ Database schema not set up. Run database-schema.sql first.`;
+                } else if (matches?.length === 0) {
+                    document.getElementById('status').innerHTML = `⚠️ No matches found. Import match data using the SQL files.`;
+                } else {
+                    document.getElementById('status').innerHTML = `✅ All good! Database is set up with data.`;
+                }
+                
+            } catch (error) {
+                document.getElementById('status').innerHTML = `❌ Connection Error: ${error.message}`;
+            }
+        }
+        
+        testConnection();
+    </script>
+</body>
+</html>

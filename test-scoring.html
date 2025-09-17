@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Scoring Functionality</title>
+</head>
+<body>
+    <h1>ISSO Scoring Test</h1>
+    <div id="status">Testing scoring functionality...</div>
+    <div id="results"></div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js@2';
+        
+        const supabaseUrl = 'https://rapomzbwiyqgxtzilclz.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJhcG9temJ3aXlxZ3h0emlsY2x6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwMDE4NDAsImV4cCI6MjA3MzU3Nzg0MH0.CKyQPN6rtNrtbAfowF8_GEKD-m_RyYSrTGJzs6wauhw';
+        
+        const supabase = createClient(supabaseUrl, supabaseKey);
+        
+        async function testScoring() {
+            try {
+                console.log('🧪 Testing scoring functionality...');
+                
+                // Test 1: Get a basketball match
+                const { data: basketballMatch, error: matchError } = await supabase
+                    .from('matches')
+                    .select('*')
+                    .eq('sport_id', (await supabase.from('sports').select('id').eq('slug', 'basketball-u17-girls').single()).data.id)
+                    .limit(1)
+                    .single();
+                
+                if (matchError) {
+                    document.getElementById('status').innerHTML = `❌ Match error: ${matchError.message}`;
+                    return;
+                }
+                
+                console.log('✅ Found match:', basketballMatch);
+                document.getElementById('results').innerHTML += `<p>✅ Found match: ${basketballMatch.id}</p>`;
+                
+                // Test 2: Try to update score (this will fail without auth, but we can test the RPC)
+                console.log('🧪 Testing basketball score update...');
+                
+                const { data: scoreResult, error: scoreError } = await supabase.rpc('set_basketball_score', {
+                    match_id: basketballMatch.id,
+                    home_score: 10,
+                    away_score: 8
+                });
+                
+                if (scoreError) {
+                    console.log('Expected error (no auth):', scoreError.message);
+                    document.getElementById('results').innerHTML += `<p>⚠️ Score update failed (expected without auth): ${scoreError.message}</p>`;
+                } else {
+                    console.log('✅ Score updated:', scoreResult);
+                    document.getElementById('results').innerHTML += `<p>✅ Score updated successfully!</p>`;
+                }
+                
+                // Test 3: Check if RPC functions exist
+                console.log('🧪 Testing RPC functions...');
+                
+                const { data: rpcTest, error: rpcError } = await supabase.rpc('user_can_edit_match', {
+                    match_id: basketballMatch.id
+                });
+                
+                if (rpcError) {
+                    document.getElementById('results').innerHTML += `<p>❌ RPC function error: ${rpcError.message}</p>`;
+                } else {
+                    document.getElementById('results').innerHTML += `<p>✅ RPC functions working: ${rpcTest}</p>`;
+                }
+                
+                document.getElementById('status').innerHTML = '✅ Scoring test completed! Check results below.';
+                
+            } catch (error) {
+                console.error('❌ Test error:', error);
+                document.getElementById('status').innerHTML = `❌ Test error: ${error.message}`;
+            }
+        }
+        
+        testScoring();
+    </script>
+</body>
+</html>

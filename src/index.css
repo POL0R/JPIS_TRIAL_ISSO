@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+@layer base {
+  :root { color-scheme: dark; }
+  html, body, #root { height: 100%; }
+  body { @apply bg-bgDark text-textPrimary antialiased; }
+}
+
+/* Tailwind v4 theme tokens */
+@theme {
+  --color-limePrimary: #D7FF4C;
+  --color-limeSecondary: #C8FF2E;
+  --color-bgDark: #0E3227;
+  --color-surface: #154332;
+  --color-surfaceDeep: #133A2B;
+  --color-accentGreen: #1E6C4F;
+  --color-textPrimary: #EAF7F0;
+  --color-textMuted: #A7D2BF;
+  --color-liveRed: #FF5A5A;
+
+  --radius-xl2: 20px;
+}
+
+/* Landscape date strip layout */
+@media (orientation: landscape) {
+  .date-strip-landscape {
+    gap: 2%; /* 2% gap of container width */
+  }
+  .date-strip-landscape .date-strip-item {
+    width: 18%; /* 18% of container width per item */
+    min-width: 18%;
+    height: 15vh;
+  }
+  .date-strip-landscape .weekday { font-size: 1.125rem; } /* text-lg ~ 18px */
+  .date-strip-landscape .daynum { font-size: 1.5rem; } /* text-xl ~ 24px */
+}
+
+/* Phone portrait defaults */
+.weekday { font-size: 0.75rem; } /* text-xs */
+.daynum { font-size: 1.125rem; } /* text-lg */
